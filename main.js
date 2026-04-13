@@ -1,5 +1,6 @@
 const TREFLE_TOKEN = 'usr-uEBnIOB39M7xG-jQKuBMjAfFWz7jyeVPvlQjNu85AIo';
 let cartCount = 0;
+const MOCK_API = 'https://typicode.com'; 
 
 const ailmentMap = {
     "sleep": "lavender",
@@ -16,30 +17,73 @@ async function searchPlants() {
     const grid = document.getElementById('productGrid');
     
     if (!query) return;
+    if (ailmentMap[query]) query = ailmentMap[query];
 
-    if (ailmentMap[query]) {
-        query = ailmentMap[query];
-    }
-
-    grid.innerHTML = `
-        <div class="loading-state">
-            <p>Verifying Botanical Records...</p>
-        </div>
-    `;
+    grid.innerHTML = `<div class="loading-state"><p>Verifying Botanical Records...</p></div>`;
 
     try {
-        const apiTarget = `https://trefle.io/api/v1/plants/search?token=${TREFLE_TOKEN}&q=${query}`;
-        const proxiedUrl = `https://corsproxy.io/?${encodeURIComponent(apiTarget)}`;
+        const apiTarget = `https://trefle.io{TREFLE_TOKEN}&q=${query}`;
+        const proxiedUrl = `https://corsproxy.io{encodeURIComponent(apiTarget)}`;
 
         const response = await fetch(proxiedUrl);
         if (!response.ok) throw new Error();
 
         const result = await response.json();
         displayHerbs(result.data);
-
     } catch (error) {
         grid.innerHTML = `<p>Connection error. Please try again.</p>`;
     }
+}
+
+async function addToCart(name) {
+    try {
+        const response = await fetch(MOCK_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item: name, quantity: 1 })
+        });
+        
+        if (response.ok) {
+            cartCount++;
+            updateCartUI();
+            alert(`${name} added to server.`);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function updateCartItem(itemId, newQuantity) {
+    try {
+        const response = await fetch(`${MOCK_API}/${itemId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: newQuantity })
+        });
+        alert("Cart updated.");
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function removeFromCart(itemId) {
+    try {
+        const response = await fetch(`${MOCK_API}/${itemId}`, {
+            method: 'DELETE'
+        });
+        if (response.ok) {
+            cartCount--;
+            updateCartUI();
+            alert("Item removed.");
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function updateCartUI() {
+    const cartDisplay = document.querySelector('.cart-btn') || document.querySelector('.cart-status');
+    if (cartDisplay) cartDisplay.innerText = `Cart (${cartCount})`;
 }
 
 function displayHerbs(herbs) {
@@ -59,7 +103,7 @@ function displayHerbs(herbs) {
         const price = Math.floor(Math.random() * (2500 - 850) + 850);
 
         card.innerHTML = `
-            <img src="${herb.image_url || 'https://images.unsplash.com/photo-1515514013400-983dfd88339c?q=80&w=400&auto=format&fit=crop'}" class="herb-img">
+            <img src="${herb.image_url || 'https://unsplash.com'}" class="herb-img">
             <div class="herb-info">
                 <span class="ppb-status">✓ PPB Verified: ${ppbId}-ACT</span>
                 <h3>${herb.common_name || 'Herbal Extract'}</h3>
@@ -76,15 +120,6 @@ function displayHerbs(herbs) {
         `;
         grid.appendChild(card);
     });
-}
-
-function addToCart(name) {
-    cartCount++;
-    const cartDisplay = document.querySelector('.cart-btn') || document.querySelector('.cart-status');
-    if (cartDisplay) {
-        cartDisplay.innerText = `Cart (${cartCount})`;
-    }
-    alert(`${name} added to order.`);
 }
 
 document.getElementById('herbSearch').addEventListener('keypress', function (e) {
