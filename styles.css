@@ -1,0 +1,161 @@
+:root {
+    --bg-dark: #1b2217;
+    --card-bg: rgba(42, 50, 38, 0.7);
+    --text-ivory: #f4f1ea;
+    --accent-gold: #d4af37;
+    --btn-terracotta: #bc541e;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-ivory);
+}
+
+.bg-blur {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: url('https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=1600&auto=format&fit=crop') center/cover;
+    filter: blur(60px) brightness(0.4);
+    z-index: -1;
+}
+
+nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 5%;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.img-logo img {
+    height: 80px;
+    width: auto;
+    border-radius:20px;
+    padding:0px;
+    margin: 10px 0px 10px 0px
+;
+ }
+
+header { text-align: center; padding: 60px 10%; }
+
+.hero-text { font-family: 'Playfair Display', serif; font-size: 3rem; margin-bottom: 30px; }
+
+
+.search-container input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 15px 25px;
+    width: 350px;
+    border-radius: 30px 0 0 30px;
+    color: white;
+    outline: none;
+}
+
+.search-container button {
+    padding: 15px 30px;
+    background: var(--btn-terracotta);
+    color: white;
+    border: none;
+    border-radius: 0 30px 30px 0;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 40px 8%;
+}
+
+.herb-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.herb-card:hover { transform: translateY(-5px); }
+
+.herb-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.herb-info { padding: 20px; }
+
+.herb-info h3 { font-family: 'Playfair Display', serif; margin: 0 0 5px 0; font-size: 1.4rem; }
+
+.botanical-name {
+    font-style: italic;
+    color: var(--accent-gold);
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.dosage-info {
+    background: rgba(0,0,0,0.3);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.ppb-status {
+    display: block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8B9D83;
+    margin-bottom: 15px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 15px;
+}
+
+.price { font-weight: bold; font-size: 1.1rem; }
+
+.buy-btn {
+    background: var(--btn-terracotta);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.footer-section{
+    background: rgba(0,0,0,0.3);
+    padding: 20px 10%;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #777;    
+} 
+   .footer-section a {
+    color:  whitesmoke;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+}
+.cart-btn{
+    border-radius: 10px;
+    color: white;
+    background: var(--btn-terracotta);
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+.social-section {
+    padding: 50px;
+    text-align: center;   
+}
