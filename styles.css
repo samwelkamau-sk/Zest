@@ -30,16 +30,14 @@ nav {
 .img-logo img {
     height: 80px;
     width: auto;
-    border-radius:20px;
-    padding:0px;
-    margin: 10px 0px 10px 0px
-;
- }
+    border-radius: 20px;
+    padding: 0px;
+    margin: 10px 0px 10px 0px;
+}
 
 header { text-align: center; padding: 60px 10%; }
 
 .hero-text { font-family: 'Playfair Display', serif; font-size: 3rem; margin-bottom: 30px; }
-
 
 .search-container input {
     background: rgba(255,255,255,0.05);
@@ -133,20 +131,8 @@ header { text-align: center; padding: 60px 10%; }
     border-radius: 4px;
     cursor: pointer;
 }
-.footer-section{
-    background: rgba(0,0,0,0.3);
-    padding: 20px 10%;
-    text-align: center;
-    font-size: 0.8rem;
-    color: #777;    
-} 
-   .footer-section a {
-    color:  whitesmoke;
-    text-decoration: none;
-    margin: 0 10px;
-    font-weight: bold;
-}
-.cart-btn{
+
+.cart-btn {
     border-radius: 10px;
     color: white;
     background: var(--btn-terracotta);
@@ -155,7 +141,74 @@ header { text-align: center; padding: 60px 10%; }
     border: none;
     cursor: pointer;
 }
+
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 350px;
+    height: 100vh;
+    background: #2a3226;
+    color: white;
+    padding: 20px;
+    transition: right 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.cart-sidebar.open {
+    right: 0;
+}
+
+#cartItemsList {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-top: 20px;
+}
+
+.cart-item {
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-footer {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 20px;
+}
+
+.close-cart {
+    background: none;
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold);
+    padding: 5px 10px;
+    cursor: pointer;
+    align-self: flex-end;
+}
+
+.footer-section {
+    background: rgba(0,0,0,0.3);
+    padding: 20px 10%;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.footer-section a {
+    color: whitesmoke;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
 .social-section {
     padding: 50px;
-    text-align: center;   
+    text-align: center;
 }

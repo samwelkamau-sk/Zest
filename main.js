@@ -1,6 +1,5 @@
 const TREFLE_TOKEN = 'usr-uEBnIOB39M7xG-jQKuBMjAfFWz7jyeVPvlQjNu85AIo';
-let cartCount = 0;
-const MOCK_API = 'https://typicode.com'; 
+let cartItems = JSON.parse(localStorage.getItem('zest_cart')) || [];
 
 const ailmentMap = {
     "sleep": "lavender",
@@ -11,6 +10,14 @@ const ailmentMap = {
     "stress": "ashwagandha",
     "energy": "ginseng"
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateCartUI();
+});
+
+function toggleCart() {
+    document.getElementById('cartSidebar').classList.toggle('open');
+}
 
 async function searchPlants() {
     let query = document.getElementById('herbSearch').value.trim().toLowerCase();
@@ -26,8 +33,6 @@ async function searchPlants() {
         const proxiedUrl = `https://corsproxy.io?${encodeURIComponent(apiTarget)}`;
 
         const response = await fetch(proxiedUrl);
-        if (!response.ok) throw new Error();
-
         const result = await response.json();
         displayHerbs(result.data);
     } catch (error) {
@@ -35,55 +40,56 @@ async function searchPlants() {
     }
 }
 
-async function addToCart(name) {
-    try {
-        const response = await fetch(MOCK_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ item: name, quantity: 1 })
-        });
-        
-        if (response.ok) {
-            cartCount++;
-            updateCartUI();
-            alert(`${name} added to server.`);
-        }
-    } catch (error) {
-        console.error(error);
+function addToCart(name, price) {
+    const newItem = {
+        id: Date.now(),
+        name: name,
+        price: parseInt(price)
+    };
+    
+    cartItems.push(newItem);
+    saveAndRefresh();
+    
+    if(!document.getElementById('cartSidebar').classList.contains('open')) {
+        toggleCart();
     }
 }
 
-async function updateCartItem(itemId, newQuantity) {
-    try {
-        const response = await fetch(`${MOCK_API}/${itemId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ quantity: newQuantity })
-        });
-        alert("Cart updated.");
-    } catch (error) {
-        console.error(error);
-    }
+function removeFromCart(itemId) {
+    cartItems = cartItems.filter(item => item.id !== itemId);
+    saveAndRefresh();
 }
 
-async function removeFromCart(itemId) {
-    try {
-        const response = await fetch(`${MOCK_API}/${itemId}`, {
-            method: 'DELETE'
-        });
-        if (response.ok) {
-            cartCount--;
-            updateCartUI();
-            alert("Item removed.");
-        }
-    } catch (error) {
-        console.error(error);
-    }
+function saveAndRefresh() {
+    localStorage.setItem('zest_cart', JSON.stringify(cartItems));
+    updateCartUI();
 }
 
 function updateCartUI() {
-    const cartDisplay = document.querySelector('.cart-btn') || document.querySelector('.cart-status');
-    if (cartDisplay) cartDisplay.innerText = `Cart (${cartCount})`;
+    const cartBtn = document.querySelector('.cart-btn');
+    cartBtn.innerText = `Cart (${cartItems.length})`;
+
+    const list = document.getElementById('cartItemsList');
+    const totalSpan = document.getElementById('cartTotal');
+    
+    list.innerHTML = '';
+    let total = 0;
+
+    cartItems.forEach(item => {
+        total += item.price;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <div>
+                <div style="font-weight:bold">${item.name}</div>
+                <div style="font-size:0.8rem; color:var(--accent-gold)">KES ${item.price.toLocaleString()}</div>
+            </div>
+            <button onclick="removeFromCart(${item.id})" style="background:var(--btn-terracotta); border:none; color:white; border-radius:4px; padding:5px 8px; cursor:pointer">×</button>
+        `;
+        list.appendChild(div);
+    });
+
+    totalSpan.innerText = total.toLocaleString();
 }
 
 function displayHerbs(herbs) {
@@ -96,17 +102,17 @@ function displayHerbs(herbs) {
     }
 
     herbs.forEach(herb => {
-        const card = document.createElement('div');
-        card.className = 'herb-card';
-        
         const ppbId = Math.floor(100000 + Math.random() * 900000);
         const price = Math.floor(Math.random() * (2500 - 850) + 850);
+        const commonName = herb.common_name || 'Herbal Extract';
 
+        const card = document.createElement('div');
+        card.className = 'herb-card';
         card.innerHTML = `
-            <img src="${herb.image_url || 'https://unsplash.com'}" class="herb-img">
+            <img src="${herb.image_url || 'https://images.unsplash.com/photo-1541448505741-2d62814d4ebe?auto=format&fit=crop&q=80&w=400'}" class="herb-img">
             <div class="herb-info">
                 <span class="ppb-status">✓ PPB Verified: ${ppbId}-ACT</span>
-                <h3>${herb.common_name || 'Herbal Extract'}</h3>
+                <h3>${commonName}</h3>
                 <p class="botanical-name">${herb.scientific_name}</p>
                 <div class="dosage-info">
                     <strong>Standard Preparation:</strong><br>
@@ -114,7 +120,7 @@ function displayHerbs(herbs) {
                 </div>
                 <div class="price-row">
                     <span class="price">KES ${price.toLocaleString()}</span>
-                    <button class="buy-btn" onclick="addToCart('${herb.common_name || 'Item'}')">Add to Cart</button>
+                    <button class="buy-btn" onclick="addToCart('${commonName.replace(/'/g, "\\'")}', ${price})">Add to Cart</button>
                 </div>
             </div>
         `;
@@ -122,8 +128,6 @@ function displayHerbs(herbs) {
     });
 }
 
-document.getElementById('herbSearch').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        searchPlants();
-    }
+document.getElementById('herbSearch').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchPlants();
 });
