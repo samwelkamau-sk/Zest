@@ -22,8 +22,8 @@ async function searchPlants() {
     grid.innerHTML = `<div class="loading-state"><p>Verifying Botanical Records...</p></div>`;
 
     try {
-        const apiTarget = `https://trefle.io{TREFLE_TOKEN}&q=${query}`;
-        const proxiedUrl = `https://corsproxy.io{encodeURIComponent(apiTarget)}`;
+        const apiTarget = `https://trefle.io/api/v1/plants/search?token=${TREFLE_TOKEN}&q=${query}`;
+        const proxiedUrl = `https://corsproxy.io?${encodeURIComponent(apiTarget)}`;
 
         const response = await fetch(proxiedUrl);
         if (!response.ok) throw new Error();
