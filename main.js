@@ -1,4 +1,4 @@
-const TREFLE_TOKEN = 'usr-uEBnIOB39M7xG-jQKuBMjAfFWz7jyeVPvlQjNu85AIo';
+const PERENUAL_KEY = 'sk-P7im69df2dd32372c16437';
 let cartItems = JSON.parse(localStorage.getItem('zest_cart')) || [];
 
 const ailmentMap = {
@@ -26,33 +26,64 @@ async function searchPlants() {
     if (!query) return;
     if (ailmentMap[query]) query = ailmentMap[query];
 
-    grid.innerHTML = `<div class="loading-state"><p>Verifying Botanical Records...</p></div>`;
+    grid.innerHTML = `<div class="loading-state" style="grid-column: 1/-1; text-align: center;">Verifying Botanical Records...</div>`;
 
     try {
-        const apiTarget = `https://trefle.io/api/v1/plants/search?token=${TREFLE_TOKEN}&q=${query}`;
-        const proxiedUrl = `https://corsproxy.io?${encodeURIComponent(apiTarget)}`;
-
-        const response = await fetch(proxiedUrl);
+        const url = `https://perenual.com/api/species-list?key=${PERENUAL_KEY}&q=${query}`;
+        const response = await fetch(url);
         const result = await response.json();
-        displayHerbs(result.data);
+
+        if (result.data && result.data.length > 0) {
+            displayHerbs(result.data);
+        } else {
+            grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center;">No clinical matches found.</p>`;
+        }
     } catch (error) {
-        grid.innerHTML = `<p>Connection error. Please try again.</p>`;
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center;">Connection error. Please check your connection.</p>`;
     }
 }
 
+function displayHerbs(herbs) {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+
+    herbs.forEach(herb => {
+        const commonName = herb.common_name || 'Herbal Extract';
+        const scientificName = herb.scientific_name ? herb.scientific_name[0] : 'Botanical Species';
+        const imageUrl = (herb.default_image && herb.default_image.regular_url) 
+                         ? herb.default_image.regular_url 
+                         : 'https://images.unsplash.com/photo-1541448505741-2d62814d4ebe?w=400';
+
+        const ppbId = Math.floor(100000 + Math.random() * 900000);
+        const price = Math.floor(Math.random() * (2500 - 850) + 850);
+
+        const card = document.createElement('div');
+        card.className = 'herb-card';
+        card.innerHTML = `
+            <img src="${imageUrl}" class="herb-img" onerror="this.src='https://images.unsplash.com/photo-1541448505741-2d62814d4ebe?w=400'">
+            <div class="herb-info">
+                <span class="ppb-status">✓ PPB Verified: ${ppbId}-ACT</span>
+                <h3>${commonName}</h3>
+                <p class="botanical-name">${scientificName}</p>
+                <div class="dosage-info">
+                    <strong>Standard Preparation:</strong><br>
+                    Infuse 2.5g of dried parts in 200ml water. Twice daily.
+                </div>
+                <div class="price-row">
+                    <span class="price">KES ${price.toLocaleString()}</span>
+                    <button class="buy-btn" onclick="addToCart('${commonName.replace(/'/g, "\\'")}', ${price})">Add to Cart</button>
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
 function addToCart(name, price) {
-    const newItem = {
-        id: Date.now(),
-        name: name,
-        price: parseInt(price)
-    };
-    
+    const newItem = { id: Date.now(), name: name, price: parseInt(price) };
     cartItems.push(newItem);
     saveAndRefresh();
-    
-    if(!document.getElementById('cartSidebar').classList.contains('open')) {
-        toggleCart();
-    }
+    if(!document.getElementById('cartSidebar').classList.contains('open')) toggleCart();
 }
 
 function removeFromCart(itemId) {
@@ -67,11 +98,12 @@ function saveAndRefresh() {
 
 function updateCartUI() {
     const cartBtn = document.querySelector('.cart-btn');
-    cartBtn.innerText = `Cart (${cartItems.length})`;
+    if(cartBtn) cartBtn.innerText = `Cart (${cartItems.length})`;
 
     const list = document.getElementById('cartItemsList');
     const totalSpan = document.getElementById('cartTotal');
     
+    if(!list) return;
     list.innerHTML = '';
     let total = 0;
 
@@ -89,43 +121,7 @@ function updateCartUI() {
         list.appendChild(div);
     });
 
-    totalSpan.innerText = total.toLocaleString();
-}
-
-function displayHerbs(herbs) {
-    const grid = document.getElementById('productGrid');
-    grid.innerHTML = '';
-
-    if (!herbs || herbs.length === 0) {
-        grid.innerHTML = "<p>No matches found.</p>";
-        return;
-    }
-
-    herbs.forEach(herb => {
-        const ppbId = Math.floor(100000 + Math.random() * 900000);
-        const price = Math.floor(Math.random() * (2500 - 850) + 850);
-        const commonName = herb.common_name || 'Herbal Extract';
-
-        const card = document.createElement('div');
-        card.className = 'herb-card';
-        card.innerHTML = `
-            <img src="${herb.image_url || 'https://images.unsplash.com/photo-1541448505741-2d62814d4ebe?auto=format&fit=crop&q=80&w=400'}" class="herb-img">
-            <div class="herb-info">
-                <span class="ppb-status">✓ PPB Verified: ${ppbId}-ACT</span>
-                <h3>${commonName}</h3>
-                <p class="botanical-name">${herb.scientific_name}</p>
-                <div class="dosage-info">
-                    <strong>Standard Preparation:</strong><br>
-                    Infuse 2.5g of dried parts in 200ml water. Twice daily.
-                </div>
-                <div class="price-row">
-                    <span class="price">KES ${price.toLocaleString()}</span>
-                    <button class="buy-btn" onclick="addToCart('${commonName.replace(/'/g, "\\'")}', ${price})">Add to Cart</button>
-                </div>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
+    if(totalSpan) totalSpan.innerText = total.toLocaleString();
 }
 
 document.getElementById('herbSearch').addEventListener('keypress', (e) => {
